@@ -6,14 +6,14 @@ $placeholder;
 $force = 0;
 #detection of option arguments
 function Show-OldAndNewNames {
-    foreach ($name in $new_files){
-        Write-Host "Old Name: $"
+    for ($i = 0; $i -lt $files.Count; $i++) {
+        "Old Name: " + $files[$i] + " New Name: " + $new_files[$i]
     }
 }
 if ($args.Count -lt 4)
 {
-    "Usage: .\BulkRename.ps1 -n <name> -l <location>";
-    "Use the --help argument to get more information";
+    "Usage: .\BulkRename.ps1 -n <name> -l <location>"
+    "Use the --help argument to get more information"
     exit;
 }
 for ($i = 0; $i -lt $args.Count; $i++) {
@@ -21,14 +21,14 @@ for ($i = 0; $i -lt $args.Count; $i++) {
         $name = $args[$i + 1]
     }
     elseIf ($args[$i] -like "-l") {
-        $directory = $args[$i + 1];
-        $files = Get-ChildItem $directory -Name;
+        $directory = $args[$i + 1]
+        $files = Get-ChildItem $directory -Name
     }
     elseIf ($args[$i] -like "-q") {
-        $placeholder = $args[$i + 1];
+        $placeholder = $args[$i + 1]
     }
     elseIf ($args[$i] -like "-f") {
-        $force = 1;
+        $force = 1
     }
 }
 $new_files = @($name) * $files.Count;
@@ -36,25 +36,24 @@ $new_files = @($name) * $files.Count;
 foreach ($arg in $args) {
     if ($arg -like "-num") {
         for($i = 0; $i -lt $new_files.Count; $i++) {
-            [regex]$pattern = $placeholder;
-            $new_files[$i]= $pattern.replace($new_files[$i], $i, 1);
+            [regex]$pattern = $placeholder
+            $new_files[$i]= $pattern.replace($new_files[$i], $i, 1)
         }
     }  
 }
-#printing and renaming
-for ($i = 0; $i -lt $files.Count; $i++) {
-    $new_file = $new_files[$i];
-    $file = $files[$i];
-    Show-OldAndNewNames
-    if ($force -eq 0)
+Show-OldAndNewNames
+if ($force -eq 0)
+{
+    $response = Read-Host "Is this alright? [yY/nN]"
+    if ($response -ne "y" -or $response -ne "Y")
     {
-        Write-Host "Is this alright?[yY/nN]";
-        if (Read-Host -eq "n" -or Read-Host -eq "N")
-        {
-            Write-Host "Exiting...";
-            Exit-PSHostProcess;
-        }
+        Write-Host "Exiting..."
+        exit
     }
-    Rename-Item -LiteralPath "$directory$file" -NewName "$new_file";
-    Exit-PSHostProcess;
+}
+#renaming
+for ($i = 0; $i -lt $files.Count; $i++) {
+    $new_file = $new_files[$i]
+    $file = $files[$i]
+    Rename-Item -LiteralPath "$directory\$file" -NewName "$new_file"
 }
